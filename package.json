@@ -1,0 +1,52 @@
+{
+  "name": "dankrupt",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "postinstall": "node -e \"require('fs').copyFileSync('node_modules/gif.js/dist/gif.worker.js', 'public/gif.worker.js')\" && prisma generate"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.97.1",
+    "@clerk/nextjs": "^7.3.7",
+    "@prisma/client": "^5.22.0",
+    "@tanstack/react-query": "^5.100.11",
+    "cloudinary": "^2.10.0",
+    "clsx": "^2.1.1",
+    "fabric": "^7.4.0",
+    "framer-motion": "^12.39.0",
+    "gif.js": "^0.2.0",
+    "gifuct-js": "^2.1.2",
+    "hono": "^4.12.21",
+    "immer": "^11.1.8",
+    "ioredis": "^5.10.1",
+    "lucide-react": "^1.16.0",
+    "next": "16.2.6",
+    "prisma": "^5.22.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0",
+    "zustand": "^5.0.13"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "tailwindcss": "^4",
+    "tsx": "^4.22.3",
+    "typescript": "^5"
+  }
+}
