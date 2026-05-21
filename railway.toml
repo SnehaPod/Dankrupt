@@ -1,0 +1,23 @@
+# Railway deployment configuration — https://docs.railway.com/reference/config-as-code
+
+[build]
+builder      = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Runs inside the container AFTER the image is pulled but BEFORE traffic is
+# switched over. Applies any pending Prisma migrations safely.
+# Uses the prisma CLI we copied into the image (avoids symlink issues).
+releaseCommand = "node node_modules/prisma/build/index.js migrate deploy"
+
+# Railway reads PORT automatically and injects it as an env var.
+# server.js picks it up — no explicit startCommand needed.
+
+# Health check — Railway will wait until /trending returns 2xx before
+# considering the deploy healthy and routing traffic to it.
+healthcheckPath    = "/trending"
+healthcheckTimeout = 300          # seconds to wait for first healthy response
+
+# Restart on crash, up to 3 times before marking the deploy failed.
+restartPolicyType       = "on_failure"
+restartPolicyMaxRetries = 3

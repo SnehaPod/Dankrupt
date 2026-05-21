@@ -1,0 +1,117 @@
+generator client {
+  provider      = "prisma-client-js"
+  // "native"  → matches whatever machine runs `prisma generate` (macOS in dev)
+  // "linux-musl-openssl-3.0.x" → Alpine Linux (Docker / Railway production)
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  clerkId     String   @unique
+  username    String   @unique
+  displayName String?
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+
+  memes   Meme[]
+  remixes Remix[] @relation("RemixAuthor")
+
+  @@index([clerkId])
+  @@index([username])
+}
+
+model Template {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  name        String
+  imageUrl    String
+  width       Int
+  height      Int
+  category    TemplateCategory
+  trendLabel  TrendLabel       @default(CLASSIC)
+  trendScore  Float            @default(0)
+  tags        String[]
+  // Array of { id, x, y, w, h, defaultText, fontSize, align }
+  textRegions Json
+  usageCount  Int              @default(0)
+  isPublic    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  memes Meme[]
+
+  @@index([category])
+  @@index([trendScore(sort: Desc)])
+  @@index([trendLabel])
+  @@index([usageCount(sort: Desc)])
+}
+
+model Meme {
+  id          String   @id @default(cuid())
+  shortId     String   @unique @default(cuid())
+  authorId    String?
+  templateId  String?
+  imageUrl    String
+  // Full Fabric.js JSON snapshot — enables re-editing and remixing
+  canvasState Json
+  width       Int
+  height      Int
+  isPublic    Boolean  @default(true)
+  likeCount   Int      @default(0)
+  remixCount  Int      @default(0)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  author   User?     @relation(fields: [authorId], references: [id])
+  template Template? @relation(fields: [templateId], references: [id])
+
+  remixOf Remix?  @relation("RemixTarget")
+  remixes Remix[] @relation("SourceMeme")
+
+  @@index([authorId])
+  @@index([shortId])
+  @@index([createdAt(sort: Desc)])
+  @@index([likeCount(sort: Desc)])
+  @@index([isPublic, createdAt(sort: Desc)])
+}
+
+model Remix {
+  id           String   @id @default(cuid())
+  sourceMemeId String
+  newMemeId    String   @unique
+  authorId     String
+  createdAt    DateTime @default(now())
+
+  sourceMeme Meme @relation("SourceMeme", fields: [sourceMemeId], references: [id])
+  newMeme    Meme @relation("RemixTarget", fields: [newMemeId], references: [id])
+  author     User @relation("RemixAuthor", fields: [authorId], references: [id])
+
+  @@index([sourceMemeId])
+  @@index([authorId])
+}
+
+enum TemplateCategory {
+  REACTION
+  CORPORATE
+  ANIME
+  GAMING
+  BOLLYWOOD
+  INDIAN
+  SPORTS
+  ABSURDIST
+  WHOLESOME
+  POLITICAL
+  OTHER
+}
+
+enum TrendLabel {
+  RISING
+  HOT
+  DEAD
+  CLASSIC
+}
