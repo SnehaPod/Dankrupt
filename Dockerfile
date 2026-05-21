@@ -39,22 +39,6 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy full source (respects .dockerignore — node_modules, .next, .env* excluded)
 COPY . .
 
-# ── NEXT_PUBLIC_ build-time variables ────────────────────────────────────────
-# Next.js bakes NEXT_PUBLIC_* into the JS bundle at build time.
-# Pass these as --build-arg when building locally, or set them as Railway
-# "Variables" (they are forwarded to the Docker build automatically).
-ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-ARG NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-ARG NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-ARG NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/create
-ARG NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/create
-
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY} \
-    NEXT_PUBLIC_CLERK_SIGN_IN_URL=${NEXT_PUBLIC_CLERK_SIGN_IN_URL} \
-    NEXT_PUBLIC_CLERK_SIGN_UP_URL=${NEXT_PUBLIC_CLERK_SIGN_UP_URL} \
-    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=${NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL} \
-    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=${NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
-
 # ── Explicit postinstall tasks (skipped by --ignore-scripts above) ────────────
 # 1. Copy gif.js web worker into public/ so it's served as a static asset
 RUN node -e "require('fs').copyFileSync( \

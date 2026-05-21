@@ -1,8 +1,8 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  // `output: "standalone"` is only for self-hosted / Docker deployments.
-  // Vercel manages its own bundling — do not set it here.
+  // Required for Docker / Railway — produces .next/standalone for the runner stage.
+  output: "standalone",
 
   async redirects() {
     return [
