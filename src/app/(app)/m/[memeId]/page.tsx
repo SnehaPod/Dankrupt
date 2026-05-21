@@ -36,7 +36,7 @@ export default async function MemePage({ params }: Props) {
   const { memeId } = await params
 
   let meme: Awaited<ReturnType<typeof db.meme.findUnique>> & {
-    author?: { username: string; displayName: string | null } | null
+    author?: { name: string | null; image: string | null } | null
     template?: { name: string; id: string } | null
   } | null = null
 
@@ -49,7 +49,7 @@ export default async function MemePage({ params }: Props) {
     meme = await db.meme.findUnique({
       where: { shortId: memeId },
       include: {
-        author: { select: { username: true, displayName: true } },
+        author: { select: { name: true, image: true } },
         template: { select: { name: true, id: true } },
       },
     })

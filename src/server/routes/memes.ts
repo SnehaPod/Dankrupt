@@ -9,7 +9,7 @@ memesRouter.get("/:shortId", async (c) => {
   const meme = await db.meme.findUnique({
     where: { shortId },
     include: {
-      author: { select: { username: true, displayName: true, avatarUrl: true } },
+      author: { select: { name: true, image: true, email: true } },
       template: { select: { id: true, name: true, slug: true } },
     },
   })
