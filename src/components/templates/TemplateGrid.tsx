@@ -1,4 +1,6 @@
+import Link from "next/link"
 import { TemplateCard } from "./TemplateCard"
+import { RefreshLink } from "./RefreshLink"
 import type { TemplateSlim } from "@/types"
 
 interface Props {
@@ -9,19 +11,41 @@ interface Props {
 export function TemplateGrid({ templates, emptyMessage }: Props) {
   if (templates.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <p className="text-5xl mb-5">{emptyMessage ? "🔍" : "🫙"}</p>
-        <p className="text-muted font-semibold text-sm">
-          {emptyMessage ?? "No templates here yet."}
-        </p>
-        {!emptyMessage && (
-          <p className="text-muted/40 text-xs mt-2 font-mono">
-            Run{" "}
-            <code className="bg-surface-elevated px-1.5 py-0.5 rounded border border-border">
-              npm run db:seed
-            </code>{" "}
-            to populate demo data.
-          </p>
+      <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+        {emptyMessage ? (
+          // Search / filter returned no results
+          <>
+            <span className="text-5xl select-none">🔍</span>
+            <div>
+              <p className="text-foreground/70 font-semibold text-sm">
+                {emptyMessage}
+              </p>
+              <p className="text-muted/50 text-xs mt-1">
+                Try a broader term, or{" "}
+                <Link
+                  href="/trending"
+                  className="underline underline-offset-2 hover:text-accent transition-colors"
+                >
+                  browse all templates
+                </Link>
+                .
+              </p>
+            </div>
+          </>
+        ) : (
+          // Initial load — APIs timed out or returned nothing
+          <>
+            <span className="text-5xl select-none">📡</span>
+            <div>
+              <p className="text-foreground/70 font-semibold text-sm">
+                Templates are taking a moment to load
+              </p>
+              <p className="text-muted/50 text-xs mt-1">
+                Imgflip and Giphy are being fetched — give it a second or{" "}
+                <RefreshLink />.
+              </p>
+            </div>
+          </>
         )}
       </div>
     )
