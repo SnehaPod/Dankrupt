@@ -2,16 +2,14 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useEditorStore } from "@/store/editor"
 import { encodeAnimatedGif, blobToDataUrl } from "@/lib/gifExport"
+import { ShareModal } from "./ShareModal"
 import type { ExportFormat } from "@/types"
 
 const STATIC_FORMATS: ExportFormat[] = ["png", "jpeg"]
 
 export function EditorToolbar() {
-  const router = useRouter()
-
   const {
     activeTemplate,
     sourceMemeId,
@@ -32,6 +30,8 @@ export function EditorToolbar() {
 
   // 0–1 while gif.js is quantising frames, null otherwise
   const [gifProgress, setGifProgress] = useState<number | null>(null)
+  // shortId of the just-uploaded meme — drives the share modal
+  const [shareShortId, setShareShortId] = useState<string | null>(null)
 
   // ── Derived ───────────────────────────────────────────────────────────────
   /** Whether the active template is an animated GIF with an exportable source */
@@ -166,7 +166,8 @@ export function EditorToolbar() {
       })
       if (!res.ok) throw new Error("Export failed")
       const { shortId } = await res.json()
-      router.push(`/m/${shortId}`)
+      // Open the share modal instead of navigating away
+      setShareShortId(shortId)
     } catch {
       // Fallback: trigger local download if the server upload fails
       const a = document.createElement("a")
@@ -187,8 +188,18 @@ export function EditorToolbar() {
     : null
 
   return (
-    // overflow-x-auto + [scrollbar-width:none] lets the toolbar scroll on narrow
-    // screens without a visible scrollbar — all buttons stay reachable.
+    <>
+    {/* ── Share modal (portal-like: sits above the editor, outside the toolbar) */}
+    {shareShortId && (
+      <ShareModal
+        shortId={shareShortId}
+        onClose={() => setShareShortId(null)}
+        onDownload={handleDownload}
+      />
+    )}
+
+    {/* overflow-x-auto + [scrollbar-width:none] lets the toolbar scroll on narrow
+        screens without a visible scrollbar — all buttons stay reachable. */}
     <div className="h-11 border-b border-border flex items-center gap-2 px-3 shrink-0 overflow-x-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch]">
       <div className="flex items-center gap-2 min-w-max w-full">
       {/* Undo / Redo */}
@@ -306,5 +317,6 @@ export function EditorToolbar() {
       </button>
       </div>{/* min-w-max inner wrapper */}
     </div>
+    </>
   )
 }
