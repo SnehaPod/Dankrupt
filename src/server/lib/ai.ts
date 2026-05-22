@@ -33,7 +33,7 @@ export async function generateCaptions({
   const toneInstruction = TONE_PROMPTS[tone]
 
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-5",
     max_tokens: 512,
     messages: [
       {
