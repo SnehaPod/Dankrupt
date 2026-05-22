@@ -9,7 +9,6 @@ memesRouter.get("/:shortId", async (c) => {
   const meme = await db.meme.findUnique({
     where: { shortId },
     include: {
-      author: { select: { name: true, image: true, email: true } },
       template: { select: { id: true, name: true, slug: true } },
     },
   })
@@ -24,14 +23,14 @@ memesRouter.get("/:shortId", async (c) => {
 
 memesRouter.post("/", async (c) => {
   const body = await c.req.json()
-  const { authorId, templateId, imageUrl, canvasState, width, height, isPublic = true } = body
+  const { templateId, imageUrl, canvasState, width, height, isPublic = true } = body
 
   if (!imageUrl || !canvasState || !width || !height) {
     return c.json({ error: "Missing required fields" }, 400)
   }
 
   const meme = await db.meme.create({
-    data: { authorId, templateId, imageUrl, canvasState, width, height, isPublic },
+    data: { templateId, imageUrl, canvasState, width, height, isPublic },
   })
 
   if (templateId) {
@@ -47,14 +46,13 @@ memesRouter.post("/", async (c) => {
 memesRouter.post("/:shortId/remix", async (c) => {
   const shortId = c.req.param("shortId")
   const body = await c.req.json()
-  const { authorId, imageUrl, canvasState, width, height } = body
+  const { imageUrl, canvasState, width, height } = body
 
   const source = await db.meme.findUnique({ where: { shortId } })
   if (!source) return c.json({ error: "Source meme not found" }, 404)
 
   const newMeme = await db.meme.create({
     data: {
-      authorId,
       templateId: source.templateId,
       imageUrl,
       canvasState,
@@ -68,7 +66,6 @@ memesRouter.post("/:shortId/remix", async (c) => {
     data: {
       sourceMemeId: source.id,
       newMemeId: newMeme.id,
-      authorId: authorId ?? "anonymous",
     },
   })
 

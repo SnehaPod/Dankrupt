@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono, Bangers } from "next/font/google"
-import { Providers } from "@/components/providers"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -36,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} ${bangers.variable} h-full`}
     >
       <body className="min-h-full bg-background text-foreground antialiased">
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   )

@@ -15,7 +15,6 @@ exportRouter.post("/", async (c) => {
   const {
     imageDataUrl,
     format = "png",
-    authorId,
     templateId,
     canvasState,
     width,
@@ -50,7 +49,6 @@ exportRouter.post("/", async (c) => {
   // Persist meme record
   const meme = await db.meme.create({
     data: {
-      authorId: authorId ?? null,
       templateId: templateId ?? null,
       imageUrl,
       canvasState,
@@ -68,7 +66,6 @@ exportRouter.post("/", async (c) => {
         data: {
           sourceMemeId: source.id,
           newMemeId: meme.id,
-          authorId: authorId ?? "anonymous",
         },
       }).catch(() => null)
 
