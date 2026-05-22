@@ -89,7 +89,7 @@ export function CategoryFilter({ activeCategory, activeLabel }: Props) {
               onClick={() => setFilter("category", id)}
               className={`
                 shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold
-                border transition-all duration-150
+                border transition-all duration-150 cursor-pointer
                 ${isActive
                   ? "border-violet-500/60 bg-gradient-to-r from-violet-600/25 to-fuchsia-600/25 text-violet-200 shadow-[0_0_12px_rgba(168,85,247,0.15)]"
                   : "border-border text-muted hover:text-foreground hover:border-border/80 hover:bg-surface-elevated"
@@ -113,7 +113,7 @@ export function CategoryFilter({ activeCategory, activeLabel }: Props) {
               onClick={() => setFilter("label", id)}
               className={`
                 flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold
-                border uppercase tracking-wider transition-all duration-150
+                border uppercase tracking-wider transition-all duration-150 cursor-pointer
                 ${isActive ? activeCls : cls}
               `}
             >

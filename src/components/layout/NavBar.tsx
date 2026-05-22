@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { DankruptIcon } from "./DankruptIcon"
 
 export function NavBar() {
   const pathname = usePathname()
@@ -17,12 +16,9 @@ export function NavBar() {
       {/* Logo */}
       <Link
         href="/trending"
-        className="flex items-center gap-2 select-none shrink-0 group"
+        className="font-[family-name:var(--font-bangers)] text-2xl tracking-widest gradient-text select-none shrink-0"
       >
-        <DankruptIcon className="w-8 h-8 transition-transform duration-200 group-hover:scale-110" />
-        <span className="font-[family-name:var(--font-bangers)] text-2xl tracking-widest gradient-text">
-          DANKRUPT
-        </span>
+        DANKRUPT
       </Link>
 
       {/* Nav link — Trending */}
