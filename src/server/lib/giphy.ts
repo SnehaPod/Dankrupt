@@ -160,6 +160,34 @@ export async function getAllGiphyTemplates(): Promise<TemplateSlim[]> {
   }
 }
 
+// ── Category → Giphy search keyword ──────────────────────────────────────────
+
+const CATEGORY_GIPHY_QUERY: Partial<Record<TemplateCategory, string>> = {
+  REACTION:   "reaction meme",
+  GAMING:     "gaming meme",
+  ANIME:      "anime meme",
+  BOLLYWOOD:  "bollywood",
+  INDIAN:     "desi india meme",
+  CORPORATE:  "office work meme",
+  SPORTS:     "sports meme",
+  ABSURDIST:  "weird meme",
+  WHOLESOME:  "wholesome cute",
+  POLITICAL:  "politics meme",
+}
+
+/**
+ * Fetch Giphy GIFs matched to a specific template category.
+ * Results are force-tagged with the requested category so the trending-page
+ * category filter passes even when Giphy titles don't contain the keyword.
+ */
+export async function getGiphyByCategory(category: TemplateCategory): Promise<TemplateSlim[]> {
+  const q = CATEGORY_GIPHY_QUERY[category]
+  if (!q || !GIPHY_KEY) return []
+  const results = await searchGiphyTemplates(q)
+  // Force-tag every result so it passes the downstream category filter
+  return results.map((t) => ({ ...t, category }))
+}
+
 /**
  * Search Giphy by keyword. Results are cached per query for 1 hour.
  * Returns [] when GIPHY_API_KEY is not set.

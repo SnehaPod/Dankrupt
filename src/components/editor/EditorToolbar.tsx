@@ -185,7 +185,10 @@ export function EditorToolbar() {
     : null
 
   return (
-    <div className="h-11 border-b border-border flex items-center gap-2 px-3 shrink-0">
+    // overflow-x-auto + [scrollbar-width:none] lets the toolbar scroll on narrow
+    // screens without a visible scrollbar — all buttons stay reachable.
+    <div className="h-11 border-b border-border flex items-center gap-2 px-3 shrink-0 overflow-x-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch]">
+      <div className="flex items-center gap-2 min-w-max w-full">
       {/* Undo / Redo */}
       <div className="flex items-center gap-1">
         <button
@@ -286,6 +289,7 @@ export function EditorToolbar() {
         )}
         Share
       </button>
+      </div>{/* min-w-max inner wrapper */}
     </div>
   )
 }

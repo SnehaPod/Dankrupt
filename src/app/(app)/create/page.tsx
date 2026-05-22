@@ -12,14 +12,16 @@ const EditorCanvas = dynamic(
 
 export default function CreatePage() {
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 3rem)" }}>
+    <div className="flex-1 min-h-0 flex flex-col">
       <EditorToolbar />
-      <div className="flex flex-1 overflow-hidden">
+
+      {/* Mobile: canvas stacked above sidebar.  Desktop: side-by-side. */}
+      <div className="flex flex-col md:flex-row flex-1 min-h-0">
         {/* Canvas area */}
-        <div className="flex-1 flex items-center justify-center p-6 overflow-auto bg-[#0d0d0d]">
+        <div className="flex-1 min-h-0 min-w-0 overflow-hidden bg-[#0d0d0d] p-3 md:p-6">
           <EditorCanvas />
         </div>
-        {/* Sidebar */}
+
         <EditorSidebar />
       </div>
     </div>

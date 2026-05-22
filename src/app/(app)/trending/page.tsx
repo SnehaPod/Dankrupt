@@ -4,12 +4,13 @@ import { getAllImgflipTemplates } from "@/server/lib/imgflip"
 import {
   getAllGiphyTemplates,
   searchGiphyTemplates,
+  getGiphyByCategory,
   isGiphyConfigured,
 } from "@/server/lib/giphy"
 import { TemplateGrid } from "@/components/templates/TemplateGrid"
 import { CategoryFilter } from "@/components/templates/CategoryFilter"
 import { SearchBar } from "@/components/templates/SearchBar"
-import type { TemplateSlim } from "@/types"
+import type { TemplateSlim, TemplateCategory } from "@/types"
 
 export const dynamic = "force-dynamic"
 
@@ -27,7 +28,9 @@ export default async function TrendingPage({ searchParams }: PageProps) {
 
     (query
       ? searchGiphyTemplates(query)
-      : getAllGiphyTemplates()
+      : category && category !== "ALL"
+        ? getGiphyByCategory(category as TemplateCategory)
+        : getAllGiphyTemplates()
     ).catch(() => [] as TemplateSlim[]),
 
     db.template
