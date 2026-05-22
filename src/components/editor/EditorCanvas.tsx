@@ -5,9 +5,11 @@ import { useEditorStore, type TextLayer } from "@/store/editor"
 
 export function EditorCanvas() {
   const canvasElRef  = useRef<HTMLCanvasElement>(null)
-  // Outer wrapper — measured on init to compute the right canvas scale
   const containerRef = useRef<HTMLDivElement>(null)
   const fabricRef    = useRef<any>(null)
+  // Stash the Fabric Textbox class after the dynamic import so the sync
+  // effect can add new layers without re-importing fabric on every change.
+  const textboxClassRef = useRef<any>(null)
   const suppressSync = useRef(false)
   const [canvasSize, setCanvasSize] = useState<{ w: number; h: number } | null>(null)
   const scaleRef = useRef(1)
@@ -30,14 +32,13 @@ export function EditorCanvas() {
 
     ;(async () => {
       const { Canvas, Textbox, FabricImage } = await import("fabric")
+      textboxClassRef.current = Textbox
 
       if (cancelled || !canvasElRef.current) return
 
       const templateW = activeTemplate?.width  ?? 800
       const templateH = activeTemplate?.height ?? 600
 
-      // Use the wrapper's actual rendered width so the canvas fits on any screen.
-      // 780 is the desktop cap; on narrow viewports the container will be smaller.
       const availW  = containerRef.current?.offsetWidth ?? 780
       const maxW    = Math.min(780, Math.max(280, availW))
       const scale   = Math.min(1, maxW / templateW)
@@ -120,43 +121,64 @@ export function EditorCanvas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Store layers → Canvas sync ────────────────────────────────────────────
+  // ── Store layers → Canvas sync (add / update / remove) ───────────────────
+  // This effect is the single source of truth for what objects exist on the
+  // canvas.  It runs whenever the layers array changes — including when a layer
+  // is added via "Add text" or deleted via the delete button.
   useEffect(() => {
-    const canvas = fabricRef.current
-    if (!canvas) return
+    const canvas  = fabricRef.current
+    const Textbox = textboxClassRef.current
+    if (!canvas || !Textbox) return
 
     suppressSync.current = true
+    const scale = scaleRef.current
+
+    // Build a fast lookup of every canvas object that has a layerId
+    const objectByLayerId = new Map<string, any>()
     for (const obj of canvas.getObjects() as any[]) {
       const id: string | undefined = obj?.data?.layerId
-      if (!id) continue
-      const layer = layers.find((l) => l.id === id)
-      if (!layer) continue
-      const s = scaleRef.current
-      obj.set({
-        text:        layer.text,
-        fontSize:    layer.fontSize    * s,
-        fontFamily:  layer.fontFamily,
-        fill:        layer.fill,
-        stroke:      layer.stroke,
-        strokeWidth: layer.strokeWidth * s,
-        textAlign:   layer.align,
-        fontStyle:   layer.fontStyle.includes("italic") ? "italic" : "normal",
-        fontWeight:  layer.fontStyle.includes("bold")   ? "bold"   : "normal",
-        angle:       layer.angle ?? 0,
-      })
+      if (id) objectByLayerId.set(id, obj)
     }
+
+    const layerIdSet = new Set(layers.map((l) => l.id))
+
+    // 1. Remove canvas objects whose layer was deleted from the store
+    for (const [id, obj] of objectByLayerId) {
+      if (!layerIdSet.has(id)) {
+        canvas.remove(obj)
+      }
+    }
+
+    // 2. Update existing objects; add canvas objects for brand-new layers
+    for (const layer of layers) {
+      const existing = objectByLayerId.get(layer.id)
+      if (existing) {
+        existing.set({
+          text:        layer.text,
+          fontSize:    layer.fontSize    * scale,
+          fontFamily:  layer.fontFamily,
+          fill:        layer.fill,
+          stroke:      layer.stroke,
+          strokeWidth: layer.strokeWidth * scale,
+          textAlign:   layer.align,
+          fontStyle:   layer.fontStyle.includes("italic") ? "italic" : "normal",
+          fontWeight:  layer.fontStyle.includes("bold")   ? "bold"   : "normal",
+          angle:       layer.angle ?? 0,
+        })
+      } else {
+        addTextbox(canvas, Textbox, layer, scale)
+      }
+    }
+
     canvas.requestRenderAll()
     suppressSync.current = false
   }, [layers])
 
-  // Aspect ratio for the placeholder matches the template so the layout
-  // doesn't jump when the canvas initialises.
   const placeholderRatio = activeTemplate
     ? `${activeTemplate.width} / ${activeTemplate.height}`
     : "4 / 3"
 
   return (
-    // Full-width wrapper — its offsetWidth is read on init to size the canvas.
     <div ref={containerRef} className="w-full flex items-center justify-center">
       <div
         className="relative rounded-lg overflow-hidden shadow-2xl bg-[#111]"

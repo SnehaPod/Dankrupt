@@ -6,7 +6,7 @@ const FONTS = ["Impact", "Arial", "Comic Sans MS", "Georgia", "Courier New", "He
 const ALIGNS = ["left", "center", "right"] as const
 
 export function TextControls() {
-  const { layers, selectedLayerId, updateLayer } = useEditorStore()
+  const { layers, selectedLayerId, updateLayer, removeLayer } = useEditorStore()
 
   const layer = layers.find((l) => l.id === selectedLayerId) ?? layers[0]
 
@@ -195,6 +195,25 @@ export function TextControls() {
           onChange={(e) => updateLayer(layer.id, { shadowBlur: Number(e.target.value) })}
           className="w-full accent-accent"
         />
+      </div>
+
+      {/* ── Delete layer ─────────────────────────────────────────────────── */}
+      <div className="pt-2 border-t border-border/40">
+        <button
+          onClick={() => removeLayer(layer.id)}
+          className="
+            w-full flex items-center justify-center gap-2
+            py-2 rounded text-xs font-semibold
+            border border-red-500/20 text-red-400/60
+            hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400
+            transition-colors duration-150
+          "
+        >
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2.5 3.5h9M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.75 7.5h5.5l.75-7.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Remove this layer
+        </button>
       </div>
     </div>
   )

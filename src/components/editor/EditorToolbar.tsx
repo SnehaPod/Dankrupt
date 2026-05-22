@@ -17,6 +17,8 @@ export function EditorToolbar() {
     sourceMemeId,
     layers,
     addLayer,
+    removeLayer,
+    selectedLayerId,
     history,
     historyIndex,
     undo,
@@ -208,6 +210,19 @@ export function EditorToolbar() {
           ↪
         </button>
       </div>
+
+      {/* Delete selected layer */}
+      <button
+        onClick={() => selectedLayerId && removeLayer(selectedLayerId)}
+        disabled={!selectedLayerId}
+        title="Delete selected text layer"
+        className="p-1.5 rounded text-muted hover:text-red-400 hover:bg-red-500/10 disabled:opacity-25 transition-colors"
+        aria-label="Delete layer"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2.5 3.5h9M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.75 7.5h5.5l.75-7.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
 
       <div className="w-px h-5 bg-border mx-1" />
 
